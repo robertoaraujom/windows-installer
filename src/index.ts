@@ -42,8 +42,8 @@ export async function createWindowsInstaller(options: Options): Promise<void> {
   outputDirectory = path.resolve(outputDirectory || 'installer');
 
   const vendorPath = path.join(__dirname, '..', 'vendor');
-  const vendorUpdate = path.join(vendorPath, 'Squirrel.exe');
-  const appUpdate = path.join(appDirectory, 'Squirrel.exe');
+  const vendorUpdate = path.join(vendorPath, 'Update.exe');
+  const appUpdate = path.join(appDirectory, 'Update.exe');
 
   await fs.copy(vendorUpdate, appUpdate);
   if (options.setupIcon && (options.skipUpdateIcon !== true)) {
@@ -165,9 +165,9 @@ export async function createWindowsInstaller(options: Options): Promise<void> {
 
   cmd = path.join(vendorPath, 'Squirrel.exe');
   args = [
-    '--releasify', nupkgPath,
+    'releasify', nupkgPath,
     '--releaseDir', outputDirectory,
-    '--loadingGif', loadingGif
+    '--splashImage', loadingGif
   ];
 
   if (useMono) {
@@ -188,12 +188,17 @@ export async function createWindowsInstaller(options: Options): Promise<void> {
   }
 
   if (options.setupIcon) {
-    args.push('--setupIcon');
+    args.push('--icon');
     args.push(path.resolve(options.setupIcon));
   }
 
-  if (options.noMsi) {
-    args.push('--no-msi');
+  if (options.setupIcon) {
+    args.push('--appIcon');
+    args.push(path.resolve(options.setupIcon));
+  }
+
+  if (!options.noMsi) {
+    args.push('--msi=x64 or x86');
   }
 
   if (options.noDelta) {
@@ -201,7 +206,7 @@ export async function createWindowsInstaller(options: Options): Promise<void> {
   }
 
   if (options.frameworkVersion) {
-    args.push('--framework-version');
+    args.push('--framework');
     args.push(options.frameworkVersion);
   }
 
