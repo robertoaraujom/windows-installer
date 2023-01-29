@@ -1,12 +1,13 @@
-import * as asar from 'asar';
+import * as asar from '@electron/asar';
 import { createTempDir } from './temp-utils';
 import * as fs from 'fs-extra';
-import { Metadata, Options, PersonMetadata } from './options';
+import { Metadata, SquirrelWindowsOptions, PersonMetadata } from './options';
 import * as path from 'path';
 import spawn from './spawn-promise';
 import template from 'lodash.template';
 
-export { Options } from './options';
+export { SquirrelWindowsOptions } from './options';
+export { SquirrelWindowsOptions as Options} from './options';
 
 const log = require('debug')('electron-windows-installer:main');
 
@@ -22,7 +23,7 @@ export function convertVersion(version: string): string {
 }
 
 
-export async function createWindowsInstaller(options: Options): Promise<void> {
+export async function createWindowsInstaller(options: SquirrelWindowsOptions): Promise<void> {
   let useMono = false;
 
   const monoExe = 'mono';
@@ -68,7 +69,7 @@ export async function createWindowsInstaller(options: Options): Promise<void> {
 
   const metadata: Metadata = {
     description: '',
-    iconUrl: 'https://raw.githubusercontent.com/electron/electron/master/shell/browser/resources/win/electron.ico'
+    iconUrl: 'https://raw.githubusercontent.com/electron/electron/main/shell/browser/resources/win/electron.ico'
   };
 
   if (options.usePackageJson !== false) {
@@ -77,7 +78,7 @@ export async function createWindowsInstaller(options: Options): Promise<void> {
     let appMetadata;
 
     if (await fs.pathExists(asarFile)) {
-      appMetadata = JSON.parse(asar.extractFile(asarFile, 'package.json'));
+      appMetadata = JSON.parse(asar.extractFile(asarFile, 'package.json').toString());
     } else {
       appMetadata = await fs.readJson(path.join(appResources, 'app', 'package.json'));
     }
